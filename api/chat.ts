@@ -7,7 +7,6 @@ const ALLOW_ORIGIN = process.env.CORS_ORIGIN || "*";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", ALLOW_ORIGIN);
 
-  // CORS preflight
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -23,6 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (typeof body === "string") {
       try { body = JSON.parse(body); } catch {}
     }
+
     const messages = Array.isArray(body?.messages) ? body.messages : undefined;
     if (!messages) {
       return res.status(400).json({ error: "Expected body: { messages: [{ role, content }, ...] }" });
@@ -31,6 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const reply = await chat(messages);
     return res.status(200).json({ reply });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message ?? "Unknown error" });
+    console.error("HopeCoach API error:", err?.stack || err?.message || err);
+    return res.status(500).json({ error: String(err?.message || err) });
   }
 }

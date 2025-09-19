@@ -3,17 +3,20 @@ import fetch from "node-fetch";
 
 export type Message = { role: "system" | "user" | "assistant"; content: string };
 
-// Use gpt-3.5-turbo via Responses API
 export async function chat(history: Message[]) {
-  // set a system prompt for tone
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("Missing OPENAI_API_KEY in environment.");
+  }
+
   const system: Message = {
     role: "system",
-    content: "You are HopeCoach: a warm, concise wellbeing coach. Be supportive, practical, and non-judgmental."
+    content:
+      "You are HopeCoach: a warm, concise wellbeing coach. Be supportive, practical, and non-judgmental."
   };
-  const messages = [system, ...history];
-  const input = messages.map(m => `${m.role}: ${m.content}`).join("\n\n");
 
-  const r = await fetch("https://api.openai.com/v1/responses", {
+  const messages = [system, ...history];
+
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -21,23 +24,27 @@ export async function chat(history: Message[]) {
     },
     body: JSON.stringify({
       model: "gpt-3.5-turbo",
-      input,
-      max_output_tokens: 500
+      messages,
+      max_tokens: 500,
+      temperature: 0.7
     })
   });
 
+  const txt = await r.text(); // read text so we can return useful errors
   if (!r.ok) {
-    const text = await r.text();
-    throw new Error(`Provider error: ${r.status} ${text}`);
+    throw new Error(`OpenAI ${r.status}: ${txt.slice(0, 500)}`);
   }
 
-  const data = await r.json();
+  let data: any;
+  try { data = JSON.parse(txt); } catch {
+    throw new Error(`OpenAI returned non-JSON: ${txt.slice(0, 500)}`);
+  }
+
   const output =
-    data?.output_text ??
-    data?.output?.[0]?.content?.[0]?.text ??
+    data?.choices?.[0]?.message?.content ??
     "Sorry, I couldn't generate a response.";
+
   return { role: "assistant" as const, content: output };
 }
 
-// alias for older calls
 export const respond = chat;
