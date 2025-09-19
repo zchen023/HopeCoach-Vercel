@@ -1,12 +1,10 @@
 // health_agent.ts
-// Using gpt-3.5-turbo with the Responses API (plain text, no response_format)
-
 import fetch from "node-fetch";
 
-type Message = { role: "system" | "user" | "assistant"; content: string };
+export type Message = { role: "system" | "user" | "assistant"; content: string };
 
-export async function respond(history: Message[]) {
-  // Optional system prompt to keep tone on-brand
+// Name the function `chat` since api/chat.ts is calling chat(...)
+export async function chat(history: Message[]) {
   const system: Message = {
     role: "system",
     content:
@@ -14,11 +12,7 @@ export async function respond(history: Message[]) {
   };
 
   const messages = [system, ...history];
-
-  // Build a simple plain-text input for the Responses API
-  const input = messages
-    .map(m => `${m.role}: ${m.content}`)
-    .join("\n\n");
+  const input = messages.map(m => `${m.role}: ${m.content}`).join("\n\n");
 
   const r = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -27,7 +21,7 @@ export async function respond(history: Message[]) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",      // 👈 switched here
+      model: "gpt-3.5-turbo",  // your requested model
       input,
       max_output_tokens: 500
     })
@@ -39,8 +33,6 @@ export async function respond(history: Message[]) {
   }
 
   const data = await r.json();
-
-  // The Responses API exposes a unified text field
   const output =
     data?.output_text ??
     data?.output?.[0]?.content?.[0]?.text ??
@@ -48,3 +40,6 @@ export async function respond(history: Message[]) {
 
   return { role: "assistant" as const, content: output };
 }
+
+// Optional: keep a respond() alias so either name works
+export const respond = chat;
