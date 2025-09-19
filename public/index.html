@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HopeCoach</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; max-width: 760px; margin: 40px auto; }
+    .log { border: 1px solid #ddd; border-radius: 12px; padding: 16px; min-height: 240px; }
+    .u { margin: 8px 0; }
+    .a { margin: 8px 0; background:#f5fff5; border-left: 4px solid #84cc16; padding:8px 12px; border-radius:8px; }
+    .row { display:flex; gap:8px; margin-top:12px; }
+    input { flex:1; padding:10px; border-radius:10px; border:1px solid #ccc; }
+    button { padding:10px 16px; border-radius:10px; border:1px solid #ccc; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h1>HopeCoach</h1>
+  <div class="log" id="log"></div>
+  <div class="row">
+    <input id="msg" placeholder="Type your message…" />
+    <button id="send">Send</button>
+  </div>
+
+  <script>
+    const log = document.getElementById('log');
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('send');
+
+    function add(role, text) {
+      const p = document.createElement('p');
+      p.className = role === 'user' ? 'u' : 'a';
+      p.textContent = (role === 'user' ? 'You: ' : 'HopeCoach: ') + text;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    async function send() {
+      const text = msg.value.trim();
+      if (!text) return;
+      add('user', text);
+      msg.value = '';
+      btn.disabled = true;
+
+      try {
+        const r = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ message: text, userId: 'user1' })
+        });
+        const data = await r.json();
+        add('assistant', data.reply ?? (data.error || 'Error'));
+      } catch (e) {
+        add('assistant', 'Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        msg.focus();
+      }
+    }
+
+    btn.onclick = send;
+    msg.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+  </script>
+</body>
+</html>
