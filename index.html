@@ -17,9 +17,7 @@
       min-height: 240px;
       overflow-y: auto;
     }
-    .u {
-      margin: 8px 0;
-    }
+    .u { margin: 8px 0; }
     .a {
       margin: 8px 0;
       background: #f5fff5;
@@ -59,7 +57,7 @@
     const msg = document.getElementById('msg');
     const btn = document.getElementById('send');
 
-    // keep chat history for the API
+    // maintain chat history
     const history = [];
 
     function add(role, text) {
@@ -73,7 +71,6 @@
     async function send() {
       const text = msg.value.trim();
       if (!text) return;
-      // append user message to UI and history
       add('user', text);
       history.push({ role: 'user', content: text });
       msg.value = '';
@@ -86,7 +83,6 @@
           body: JSON.stringify({ messages: history })
         });
         const data = await response.json();
-        // extract assistant reply (handles {reply:{role, content}} or simple error)
         const reply = data?.reply?.content ?? data?.reply ?? data?.error ?? 'Unknown error';
         history.push({ role: 'assistant', content: reply });
         add('assistant', reply);

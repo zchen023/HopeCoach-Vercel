@@ -3,14 +3,13 @@ import fetch from "node-fetch";
 
 export type Message = { role: "system" | "user" | "assistant"; content: string };
 
-// Name the function `chat` since api/chat.ts is calling chat(...)
+// Use gpt-3.5-turbo via Responses API
 export async function chat(history: Message[]) {
+  // set a system prompt for tone
   const system: Message = {
     role: "system",
-    content:
-      "You are HopeCoach: a warm, concise wellbeing coach. Be supportive, practical, and non-judgmental."
+    content: "You are HopeCoach: a warm, concise wellbeing coach. Be supportive, practical, and non-judgmental."
   };
-
   const messages = [system, ...history];
   const input = messages.map(m => `${m.role}: ${m.content}`).join("\n\n");
 
@@ -21,7 +20,7 @@ export async function chat(history: Message[]) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",  // your requested model
+      model: "gpt-3.5-turbo",
       input,
       max_output_tokens: 500
     })
@@ -37,9 +36,8 @@ export async function chat(history: Message[]) {
     data?.output_text ??
     data?.output?.[0]?.content?.[0]?.text ??
     "Sorry, I couldn't generate a response.";
-
   return { role: "assistant" as const, content: output };
 }
 
-// Optional: keep a respond() alias so either name works
+// alias for older calls
 export const respond = chat;

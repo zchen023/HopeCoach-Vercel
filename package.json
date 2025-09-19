@@ -1,16 +1,17 @@
 {
   "name": "hopecoach-vercel",
-  "version": "1.0.0",
   "private": true,
-  "license": "MIT",
+  "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "build": "echo \"nothing to build\"",
+    "start": "vercel dev"
   },
   "dependencies": {
-    "openai": "^4.0.0"
+    "node-fetch": "^3.3.2"
   },
-  "devDependencies": {
-    "@vercel/node": "^3.0.0",
-    "typescript": "^5.0.0"
+  "engines": {
+    "node": ">=18"
   }
 }
+
