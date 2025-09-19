@@ -10,8 +10,7 @@ export async function chat(history: Message[]) {
 
   const system: Message = {
     role: "system",
-    content:
-      "You are HopeCoach: a warm, concise wellbeing coach. Be supportive, practical, and non-judgmental."
+    content: "You are HopeCoach: a warm, concise wellbeing coach. Be supportive, practical, and non-judgmental."
   };
 
   const messages = [system, ...history];
@@ -30,19 +29,11 @@ export async function chat(history: Message[]) {
     })
   });
 
-  const txt = await r.text(); // read text so we can return useful errors
-  if (!r.ok) {
-    throw new Error(`OpenAI ${r.status}: ${txt.slice(0, 500)}`);
-  }
+  const txt = await r.text();
+  if (!r.ok) throw new Error(`OpenAI ${r.status}: ${txt.slice(0, 300)}`);
 
-  let data: any;
-  try { data = JSON.parse(txt); } catch {
-    throw new Error(`OpenAI returned non-JSON: ${txt.slice(0, 500)}`);
-  }
-
-  const output =
-    data?.choices?.[0]?.message?.content ??
-    "Sorry, I couldn't generate a response.";
+  const data = JSON.parse(txt);
+  const output = data?.choices?.[0]?.message?.content ?? "Sorry, I couldn't generate a response.";
 
   return { role: "assistant" as const, content: output };
 }

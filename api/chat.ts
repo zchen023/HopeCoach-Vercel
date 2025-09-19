@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const reply = await chat(messages);
     return res.status(200).json({ reply });
   } catch (err: any) {
-    console.error("HopeCoach API error:", err?.stack || err?.message || err);
+    console.error("HopeCoach API error:", err);
     return res.status(500).json({ error: String(err?.message || err) });
   }
 }
