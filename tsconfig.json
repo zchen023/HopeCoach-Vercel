@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2022"],                 // you don't need "DOM" for server code
     "module": "ES2022",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "nodenext",    // <-- change from "Bundler"
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["node"]                  // <-- add Node types
   },
   "include": ["./**/*.ts"]
 }
+
 
 

@@ -1,10 +1,9 @@
 // api/chat.ts
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { chat } from "../health_agent";
 
 const ALLOW_ORIGIN = process.env.CORS_ORIGIN || "*";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", ALLOW_ORIGIN);
 
   if (req.method === "OPTIONS") {
